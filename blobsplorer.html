@@ -1,0 +1,30 @@
+<head>
+    <script src="raphael-min.js" ></script> 
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js">
+            
+    </script>
+</head>
+
+<body>
+    <h1>blobsplorer</h1>
+    <h2>WARNING: highly experimental software; do not submit a manuscript to Nature based on the results you obtain here.</h2>
+    <div id="canvas" style="width:1000px;height:1000px;background-color:white;border:1px solid;float:left;">
+    </div>
+    <script src="blobsplorer.js"></script>
+        <div id="right" >
+            <a id="download_ids" download="contig_ids" href="data:text/plain;charset=utf-8,iVBORw0KGgoAAAANSUhEUgAAABAAAAAOCAYAAAAmL5yKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAABWSURBVDhPY0xISPh//0UOA7mAiVyNMH2jBjAwkBQGjD9KGBTEJ6OEO0kG2NvbMwCjnXwDsEU5SS5ANuDhjRCGJbPFSQsDdBfIyMhQZgDIQLK9QLWkDABPsQw5I+5qmAAAAABJRU5ErkJggg==">click me</a>
+            <input id="go" type="button" value="get ids of selected contigs"/>
+            <input id="show_selected" type="button" value="highlight selected"/><br/><br/>
+            <input id="load" type="button" value="load"/>
+            <input type="file" id="myfile" name="myfile" /><br/> <br/>
+
+            <input id="show_genus" type="button" value="genus"/>
+            <input id="show_family" type="button" value="family"/>
+            <input id="show_order" type="button" value="order"/>
+            <input id="show_phylum" type="button" value="phylum"/>
+            <input id="show_superfamily" type="button" value="superfamily"/>
+            <input id="show_kingdom" type="button" value="kingdom"/>
+            <div id="key" ></div>
+        </div>
+
+    </body>
