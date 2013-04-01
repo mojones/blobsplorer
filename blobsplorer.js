@@ -12,29 +12,31 @@ var point_radius = 2;
 var point_opacity = 1;
 
 // function to grab all the points that lie inside the current ellipse
-// TODO allow more than one ellipse
 get_points_inside_ellipse = function(e){
-    console.log("go!");
-    var ellipsetheta = Math.radians(window.ellipse.myRotation);
-    console.log("angle is " + ellipsetheta);
-    var ids = new Array();
-    for (var i=0;i<window.points.length; i++){
-        var point = window.points[i];
-        var ellipsex = window.ellipse.attrs.cx;
-        var ellipsey = window.ellipse.attrs.cy;
-        var ellipserx = window.ellipse.attrs.rx;
-        var ellipsery = window.ellipse.attrs.ry;
+    var ids = {};
+    for (var h=0;h<window.all_ellipses.length;h++){
+        var ellipse = window.all_ellipses[h];
+        var ellipsetheta = Math.radians(ellipse.myRotation);
+        var ellipsex = ellipse.attrs.cx;
+        var ellipsey = ellipse.attrs.cy;
+        var ellipserx = ellipse.attrs.rx;
+        var ellipsery = ellipse.attrs.ry;
+        for (var i=0;i<window.points.length; i++){
+            var point = window.points[i];
+            if (!(point.contig_id in ids)){
 
-        var pointx = ((point.attrs.cx - ellipsex)* Math.cos(ellipsetheta)) + ((point.attrs.cy - ellipsey) * Math.sin(ellipsetheta)) + ellipsex;
-        var pointy = ((point.attrs.cy - ellipsey) * Math.cos(ellipsetheta)) - ((point.attrs.cx - ellipsex)* Math.sin(ellipsetheta)) + ellipsey;
+                var pointx = ((point.attrs.cx - ellipsex)* Math.cos(ellipsetheta)) + ((point.attrs.cy - ellipsey) * Math.sin(ellipsetheta)) + ellipsex;
+                var pointy = ((point.attrs.cy - ellipsey) * Math.cos(ellipsetheta)) - ((point.attrs.cx - ellipsex)* Math.sin(ellipsetheta)) + ellipsey;
 
-        //scary math to calculate if the point lies within the elipse
-        if ((Math.pow((pointx - ellipsex), 2) / Math.pow(ellipserx, 2)) + (Math.pow((pointy - ellipsey), 2) / Math.pow(ellipsery, 2)) < 1){
-            point.attr('fill', 'red');
-            ids.push(point.contig_id)
-        }
-        else{
-            point.attr('fill', 'blue');
+                //scary math to calculate if the point lies within the elipse
+                if ((Math.pow((pointx - ellipsex), 2) / Math.pow(ellipserx, 2)) + (Math.pow((pointy - ellipsey), 2) / Math.pow(ellipsery, 2)) < 1){
+                    point.attr('fill', 'red');
+                    ids[point.contig_id] = true;
+                }
+                else{
+                    point.attr('fill', 'blue');
+                }
+            }
         }
     }
     console.log(ids);
@@ -48,7 +50,7 @@ switch_to = function(rank){
         var item = $('<h3>').css('background-color', window.tax_colours[rank]['counts'][i][2]).text(name);
         $('#key').append(item);
     }
-    var  other = $('<h3>').css('background-color',  '#7F8C8D').text('unclassified');
+    var  other = $('<h3>').css('background-color',  '#7F8C8D').text('unclassified/other');
     $('#key').append(other);
 
     for (var i=0;i<window.points.length;i++){
@@ -157,6 +159,7 @@ function setRotation(e){
     $("#canvas").unbind("click");
     $("#canvas").click(setCentre);
   
+    window.all_ellipses.push(window.ellipse);
 }
 
 function setCentre(e){
@@ -358,6 +361,7 @@ $(document).ready(function() {
             var elemClicked;
 
             window.paper = Raphael("canvas", paper_height, paper_width);
+            window.all_ellipses = new Array();
 
             // first click sets the centre
             $("#canvas").click(setCentre);
