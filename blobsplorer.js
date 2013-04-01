@@ -51,7 +51,11 @@ show_selected = function(e){
     }
 }
 
-
+download_selected = function(e){
+    var selected_ids = Object.keys(get_points_inside_ellipse());
+    $('#download_ids').attr('href', 'data:text/plain;charset=utf-8,' + selected_ids.join(','));
+    $('#download_ids').show();
+}
 
 // function to switch between colourings
 switch_to = function(rank){
@@ -138,6 +142,7 @@ up = function() {
 
 function draw_ellipse(x, y, w, h) {
 
+    $('#download_ids').hide();
     var element = window.paper.ellipse(x, y, w, h);
     element.attr({
         fill: "gray",
@@ -379,7 +384,7 @@ $(document).ready(function() {
             $("#canvas").click(setCentre);
 
             // clicking go grabs the points inside the ellipse
-            $("#go").click(get_points_inside_ellipse);
+            $("#go").click(download_selected);
 
             // clicking load loads the data
             $('#load').click(read_in_data);
@@ -395,6 +400,8 @@ $(document).ready(function() {
             $('#show_superfamily').click(function(){switch_to('superfamily')});
             $('#show_phylum').click(function(){switch_to('genus')});
             $('#show_kingdom').click(function(){switch_to('kingdom')});
+
+            $('#download_ids').hide();
         });
 
 
