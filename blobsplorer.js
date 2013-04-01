@@ -13,11 +13,11 @@ var point_opacity = 1;
 
 // function to grab all the points that lie inside the current ellipse
 // TODO allow more than one ellipse
-// TODO get a list of contig ids from the points
 get_points_inside_ellipse = function(e){
     console.log("go!");
     var ellipsetheta = Math.radians(window.ellipse.myRotation);
     console.log("angle is " + ellipsetheta);
+    var ids = new Array();
     for (var i=0;i<window.points.length; i++){
         var point = window.points[i];
         var ellipsex = window.ellipse.attrs.cx;
@@ -31,11 +31,13 @@ get_points_inside_ellipse = function(e){
         //scary math to calculate if the point lies within the elipse
         if ((Math.pow((pointx - ellipsex), 2) / Math.pow(ellipserx, 2)) + (Math.pow((pointy - ellipsey), 2) / Math.pow(ellipsery, 2)) < 1){
             point.attr('fill', 'red');
+            ids.push(point.contig_id)
         }
         else{
             point.attr('fill', 'blue');
         }
     }
+    console.log(ids);
 }
 // function to switch between colourings
 switch_to = function(rank){
@@ -239,7 +241,7 @@ read_in_data = function(e){
         result.length = parseFloat(cols[2]);
         result.coverage = log10(parseFloat(cols[3]));
         result.gc = parseFloat(cols[4]);
-
+        result.id = cols[1];
         result.taxonomic_data={};
         //now process taxonomic information
         for (var j=5;j<cols.length;j++){
@@ -335,7 +337,7 @@ read_in_data = function(e){
                 point.attr("stroke-width",0);
                 point.attr("fill-opacity",point_opacity);
                 point.taxonomic_data = row_data.taxonomic_data;
-
+                point.contig_id = row_data.id;
 
                 window.points.push(point);
             }
