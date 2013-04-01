@@ -12,8 +12,8 @@ var point_radius = 2;
 var point_opacity = 1;
 
 // function to grab all the points that lie inside the current ellipse
-get_points_inside_ellipse = function(e){
-    var ids = {};
+get_points_inside_ellipse = function(){
+    var points = {};
     for (var h=0;h<window.all_ellipses.length;h++){
         var ellipse = window.all_ellipses[h];
         var ellipsetheta = Math.radians(ellipse.myRotation);
@@ -23,24 +23,36 @@ get_points_inside_ellipse = function(e){
         var ellipsery = ellipse.attrs.ry;
         for (var i=0;i<window.points.length; i++){
             var point = window.points[i];
-            if (!(point.contig_id in ids)){
+            if (!(point.contig_id in points)){
 
                 var pointx = ((point.attrs.cx - ellipsex)* Math.cos(ellipsetheta)) + ((point.attrs.cy - ellipsey) * Math.sin(ellipsetheta)) + ellipsex;
                 var pointy = ((point.attrs.cy - ellipsey) * Math.cos(ellipsetheta)) - ((point.attrs.cx - ellipsex)* Math.sin(ellipsetheta)) + ellipsey;
 
                 //scary math to calculate if the point lies within the elipse
                 if ((Math.pow((pointx - ellipsex), 2) / Math.pow(ellipserx, 2)) + (Math.pow((pointy - ellipsey), 2) / Math.pow(ellipsery, 2)) < 1){
-                    point.attr('fill', 'red');
-                    ids[point.contig_id] = true;
-                }
-                else{
-                    point.attr('fill', 'blue');
+                    points[point.contig_id] = true;
                 }
             }
         }
     }
-    console.log(ids);
+    return points;
 }
+
+show_selected = function(e){
+    var selected_ids = get_points_inside_ellipse();
+    for (var i=0;i<window.points.length; i++){
+        var point = window.points[i];
+        if (point.contig_id in selected_ids){
+            point.attr('fill', 'red');
+        }
+        else{
+            point.attr('fill', 'blue');
+        }
+    }
+}
+
+
+
 // function to switch between colourings
 switch_to = function(rank){
     console.log('switching to ' + rank);
@@ -129,8 +141,8 @@ function draw_ellipse(x, y, w, h) {
     var element = window.paper.ellipse(x, y, w, h);
     element.attr({
         fill: "gray",
-        opacity: .5,
-        stroke: "#F00"
+        'fill-opacity': 0,
+        stroke: "#000"
     });
     $(element.node).attr('id', 'rct' + x + y);
     console.log(element.attr('x'));
@@ -372,7 +384,17 @@ $(document).ready(function() {
             // clicking load loads the data
             $('#load').click(read_in_data);
 
+            // show selected points
+            $('#show_selected').click(show_selected);
 
+
+            // buttons to switch colour
+            $('#show_genus').click(function(){switch_to('genus')});
+            $('#show_order').click(function(){switch_to('order')});
+            $('#show_family').click(function(){switch_to('family')});
+            $('#show_superfamily').click(function(){switch_to('superfamily')});
+            $('#show_phylum').click(function(){switch_to('genus')});
+            $('#show_kingdom').click(function(){switch_to('kingdom')});
         });
 
 
