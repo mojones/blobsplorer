@@ -1,30 +1,82 @@
-<head>
-    <script src="raphael-min.js" ></script> 
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js">
-            
-    </script>
-</head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Blobsplorer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<body>
-    <h1>blobsplorer</h1>
-    <h2>WARNING: highly experimental software; do not submit a manuscript to Nature based on the results you obtain here.</h2>
-    <div id="canvas" style="width:1000px;height:1000px;background-color:white;border:1px solid;float:left;">
-    </div>
-    <script src="blobsplorer.js"></script>
-        <div id="right" >
-            <a id="download_ids" download="contig_ids" href="data:text/plain;charset=utf-8,iVBORw0KGgoAAAANSUhEUgAAABAAAAAOCAYAAAAmL5yKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsQAAA7EAZUrDhsAAABWSURBVDhPY0xISPh//0UOA7mAiVyNMH2jBjAwkBQGjD9KGBTEJ6OEO0kG2NvbMwCjnXwDsEU5SS5ANuDhjRCGJbPFSQsDdBfIyMhQZgDIQLK9QLWkDABPsQw5I+5qmAAAAABJRU5ErkJggg==">click me</a>
-            <input id="go" type="button" value="get ids of selected contigs"/>
-            <input id="show_selected" type="button" value="highlight selected"/><br/><br/>
-            <input id="load" type="button" value="load"/>
-            <input type="file" id="myfile" name="myfile" /><br/> <br/>
+    <!-- Loading Bootstrap -->
+    <link href="css/bootstrap.css" rel="stylesheet">
 
-            <input id="show_genus" type="button" value="genus"/>
-            <input id="show_family" type="button" value="family"/>
-            <input id="show_order" type="button" value="order"/>
-            <input id="show_phylum" type="button" value="phylum"/>
-            <input id="show_superfamily" type="button" value="superfamily"/>
-            <input id="show_kingdom" type="button" value="kingdom"/>
-            <div id="key" ></div>
+    <!-- Loading Flat UI -->
+    <link href="css/flat-ui.css" rel="stylesheet">
+    <link rel="shortcut icon" href="images/favicon.ico">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container" style="width:1400px;">
+
+        <h1 class="demo-logo">Blobsplorer
+            <small> WARNING: highly experimental software; do not submit a manuscript to Nature based on the results you obtain here.</small>
+        </h1>
+      <div class="row demo-row">
+      <div  id="canvas" style="height:1000px;width:1000px;background-color:white;border:1px solid;float:left;">
         </div>
+        <div class="span3" id="sidebar">
+            <br/><br/><br/>
+            <br/><br/><br/>
+            <p id="top_tooltip" align="center" data-toggle="tooltip" title="Pick a file of contig data to get started"></p>
+            <input id="myfile" name="myfile" type="file"/>
+            <a href="#" class="btn btn-large btn-block btn-success" id="load">Load contigs</a> 
+            <a href="#" class="btn btn-large btn-block btn-warning" id="download_ids">Download contig ids </a> 
+            <a href="#" class="btn btn-large btn-block " id="show_selected">Highlight selected </a>
+            <br/> 
+            <h3>Colour by..</h3>
+          <select  id="colour_by" class="span3" tabindex="1" name="colour_by">
+            <option value="kingdom">Kingdom</option>
+            <option value="phylum">Phylum</option>
+            <option value="order">Order</option>
+            <option value="superfamily">Superfamily</option>
+            <option value="genus" selected="selected">Genus</option>
+          </select>
+            <br/> 
+            <h3>Sample every...</h3>
+          <select id="sample_every" class="span3" tabindex="2" name="sample_every">
+            <option value="1">One</option>
+            <option value="2">Two</option>
+            <option value="5">Five</option>
+            <option selected="selected" value="10">Ten</option>
+            <option value="100">Hundred</option>
+          </select>
+        </div>
+        <div class="span3" id="key">
+        </div>
+      </div> <!-- /row -->
 
-    </body>
+
+
+
+
+    </div> <!-- /container -->
+
+
+
+    <!-- Load JS here for greater good =============================-->
+    <script src="js/jquery-1.8.2.min.js"></script>
+    <script src="js/jquery-ui-1.10.0.custom.min.js"></script>
+    <script src="js/jquery.dropkick-1.0.0.js"></script>
+    <script src="js/custom_checkbox_and_radio.js"></script>
+    <script src="js/custom_radio.js"></script>
+    <script src="js/jquery.tagsinput.js"></script>
+    <script src="js/bootstrap-tooltip.js"></script>
+    <script src="js/jquery.placeholder.js"></script>
+    <script src="http://vjs.zencdn.net/c/video.js"></script>
+    <script src="js/application.js"></script>
+    <script src="raphael-min.js" ></script> 
+    <script src="blobsplorer.js"></script>
+  </body>
+</html>
