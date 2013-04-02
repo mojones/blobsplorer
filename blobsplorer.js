@@ -53,7 +53,7 @@ show_selected = function(e){
 
 download_selected = function(e){
     var selected_ids = Object.keys(get_points_inside_ellipse());
-    window.open('data:text/plain;charset=utf-8,' + selected_ids.join(','), '_blank');
+    window.open('data:application/octet-stream;charset=utf-8,' + selected_ids.join(','), '_blank');
     //$('#download_ids').attr('HREF', 'DATA:TEXT/PLAIN;CHARSET=UTF-8,' + SELECTed_ids.join(','));
     //$('#download_ids').show();
 }
