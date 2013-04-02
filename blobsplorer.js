@@ -381,6 +381,7 @@ read_in_data = function(e){
             }
         }
         var end = new Date();
+        change_colour('phylum')
         console.log('rendered in ' + (end - start));
     }
     reader.readAsText(file);
