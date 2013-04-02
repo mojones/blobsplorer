@@ -53,20 +53,36 @@ show_selected = function(e){
 
 download_selected = function(e){
     var selected_ids = Object.keys(get_points_inside_ellipse());
-    $('#download_ids').attr('href', 'data:text/plain;charset=utf-8,' + selected_ids.join(','));
-    $('#download_ids').show();
+    window.open('data:text/plain;charset=utf-8,' + selected_ids.join(','), '_blank');
+    //$('#download_ids').attr('HREF', 'DATA:TEXT/PLAIN;CHARSET=UTF-8,' + SELECTed_ids.join(','));
+    //$('#download_ids').show();
 }
 
 // function to switch between colourings
-switch_to = function(rank){
+change_colour = function(rank){
     console.log('switching to ' + rank);
     $('#key').empty();
+    var heading = $('<h2>').text('Colour key');
+    $('#key').append(heading);
+    var assigned_count = 0;
     for (var i=0;i<Math.min(7, window.tax_colours[rank]['counts'].length); i++){
         var name = window.tax_colours[rank]['counts'][i][0];
-        var item = $('<h3>').css('background-color', window.tax_colours[rank]['counts'][i][2]).text(name);
+        var count = window.tax_colours[rank]['counts'][i][1];
+        var item = $('<h5 class="btn">')
+            .css('background-color', window.tax_colours[rank]['counts'][i][2])
+            .css('color',  'black')
+            .css('text-transform',  'none')
+            .css('text-align',  'center')
+            .text(name + ' (n=' + count + ')');
         $('#key').append(item);
+        assigned_count = assigned_count + count;
     }
-    var  other = $('<h3>').css('background-color',  '#7F8C8D').text('unclassified/other');
+    var  other = $('<h5 class="btn">')
+        .css('background-color',  '#7F8C8D')
+        .css('text-transform',  'none')
+        .css('color',  'black')
+        .css('text-align',  'center')
+        .text('unclassified/other' + '(n=' + (window.points.length - assigned_count) + ')');
     $('#key').append(other);
 
     for (var i=0;i<window.points.length;i++){
@@ -138,11 +154,11 @@ up = function() {
     if (this.attr("y") < 60 && this.attr("x") < 60) this.attr({
         fill: "#AEAEAE"
     });
+    
 };
 
 function draw_ellipse(x, y, w, h) {
 
-    $('#download_ids').hide();
     var element = window.paper.ellipse(x, y, w, h);
     element.attr({
         fill: "gray",
@@ -177,6 +193,7 @@ function setRotation(e){
     $("#canvas").click(setCentre);
   
     window.all_ellipses.push(window.ellipse);
+    $('#download_ids').show();
 }
 
 function setCentre(e){
@@ -246,13 +263,14 @@ read_in_data = function(e){
     console.log(file);
     var reader = new FileReader();
 
-
+    window.paper = Raphael("canvas", paper_height, paper_width);
+    
     reader.onprogress = function(e){
         var percentLoaded = Math.round((e.loaded / e.total) * 100);
         console.log(percentLoaded + '%');
     }
 
-    var sample_every = 5;
+    var sample_every = parseFloat($('#sample_every').val());
 
 
     function get_data(cols)  {
@@ -370,6 +388,14 @@ read_in_data = function(e){
 
 }
 
+enableLoadButton = function(){
+    $('#load').removeClass('disabled');
+    $('#load').addClass('btn-success');
+}
+ disableLoadButton= function(){
+    $('#load').addClass('disabled');
+    $('#load').removeClass('btn-success');
+}
 
 $(document).ready(function() {
 
@@ -377,14 +403,13 @@ $(document).ready(function() {
             var mouseDownY = 0;
             var elemClicked;
 
-            window.paper = Raphael("canvas", paper_height, paper_width);
             window.all_ellipses = new Array();
 
             // first click sets the centre
             $("#canvas").click(setCentre);
 
             // clicking go grabs the points inside the ellipse
-            $("#go").click(download_selected);
+            $("#download_ids").click(download_selected);
 
             // clicking load loads the data
             $('#load').click(read_in_data);
@@ -392,14 +417,15 @@ $(document).ready(function() {
             // show selected points
             $('#show_selected').click(show_selected);
 
+            // disable the load button until we have selected a file
+            disableLoadButton();
 
-            // buttons to switch colour
-            $('#show_genus').click(function(){switch_to('genus')});
-            $('#show_order').click(function(){switch_to('order')});
-            $('#show_family').click(function(){switch_to('family')});
-            $('#show_superfamily').click(function(){switch_to('superfamily')});
-            $('#show_phylum').click(function(){switch_to('genus')});
-            $('#show_kingdom').click(function(){switch_to('kingdom')});
+            // show the load button when we change filename
+            $('#myfile').change(function(){enableLoadButton();$('#top_tooltip').hide();})
+
+            // selector to switch color - we need to do this instead of relying on change events because
+            // bootstrap hides the actual select
+            $('#dk_container_colour_by  li').click(function(e){change_colour($(e.target).attr('data-dk-dropdown-value'))});
 
             $('#download_ids').hide();
         });
