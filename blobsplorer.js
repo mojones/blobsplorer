@@ -429,6 +429,7 @@ $(document).ready(function() {
             $('#dk_container_colour_by  li').click(function(e){change_colour($(e.target).attr('data-dk-dropdown-value'))});
 
             $('#download_ids').hide();
+            $('#help_button').click(function(){$('body').chardinJs('toggle')});
         });
 
 

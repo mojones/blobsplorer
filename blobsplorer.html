@@ -7,6 +7,7 @@
 
     <!-- Loading Bootstrap -->
     <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/chardinjs.css" rel="stylesheet">
 
     <!-- Loading Flat UI -->
     <link href="css/flat-ui.css" rel="stylesheet">
@@ -20,23 +21,22 @@
   <body>
     <div class="container" style="width:1400px;">
 
-        <h1 class="demo-logo">Blobsplorer
+        <h1 class="demo-logo"><span  data-intro="Once your data is loaded, click in the chart to draw ellipses. <br/>First click places the centre, second click sets the size, third click sets the rotation." data-position="bottom">Blobsplorer</span>
             <small> WARNING: highly experimental software; do not submit a manuscript to Nature based on the results you obtain here.</small>
-        </h1>
+        </h1 >
       <div class="row demo-row">
-      <div  id="canvas" style="height:1000px;width:1000px;background-color:white;border:1px solid;float:left;">
+      <div   id="canvas" style="height:1000px;width:1000px;background-color:white;border:1px solid;float:left;">
         </div>
         <div class="span3" id="sidebar">
-            <br/><br/><br/>
-            <br/><br/><br/>
-            <p id="top_tooltip" align="center" data-toggle="tooltip" title="Pick a file of contig data to get started"></p>
-            <input id="myfile" name="myfile" type="file"/>
-            <a href="#" class="btn btn-large btn-block btn-success" id="load">Load contigs</a> 
-            <a href="#" class="btn btn-large btn-block btn-warning" id="download_ids">Download contig ids </a> 
-            <a href="#" class="btn btn-large btn-block " id="show_selected">Highlight selected </a>
+            <a href="#" id="help_button" class="btn btn-large btn-block btn-danger" >Toggle help</a><br/>
+            
+            <input id="myfile" name="myfile" type="file"  data-intro="click here to load a file of contig data" data-position="left" /><br/><br/>
+            <a href="#" class="btn btn-large btn-block btn-success" id="load"  data-intro="click to load display contigs on the chart" data-position="left">Load contigs</a> 
+            <a href="#" class="btn btn-large btn-block btn-warning" id="download_ids"  data-intro="click to download the list of ids for the contigs you have selected" data-position="left">Download contig ids </a> 
+            <a href="#" class="btn btn-large btn-block " id="show_selected"  data-intro="click to show the contigs you have selected" data-position="left">Highlight selected </a>
             <br/> 
-            <h3>Colour by..</h3>
-          <select  id="colour_by" class="span3" tabindex="1" name="colour_by">
+            <h3 data-intro="Choose the taxonomic level to colour by" data-position="left">Colour by..</h3>
+          <select  id="colour_by" class="span3" tabindex="1" name="colour_by" >
             <option value="kingdom">Kingdom</option>
             <option selected="selected" value="phylum">Phylum</option>
             <option value="order">Order</option>
@@ -44,7 +44,7 @@
             <option value="genus" >Genus</option>
           </select>
             <br/> 
-            <h3>Sample every...</h3>
+            <h3 data-intro="what proportion of the contigs to display. More is slower!" data-position="left">Sample every...</h3>
           <select id="sample_every" class="span3" tabindex="2" name="sample_every">
             <option value="1">One</option>
             <option value="2">Two</option>
@@ -53,7 +53,7 @@
             <option value="100">Hundred</option>
           </select>
         </div>
-        <div class="span3" id="key">
+        <div data-intro="Taxonomic colour key will be displayed here" data-position="left" class="span3" id="key" style="min-height:200px;">
         </div>
       </div> <!-- /row -->
 
@@ -78,5 +78,6 @@
     <script src="js/application.js"></script>
     <script src="raphael-min.js" ></script> 
     <script src="blobsplorer.js"></script>
+    <script src="js/chardinjs.min.js"></script>
   </body>
 </html>
