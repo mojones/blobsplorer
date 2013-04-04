@@ -94,6 +94,9 @@ change_colour = function(rank){
         point.attr('fill', new_colour);
     }
 
+    // move all unclassified points to the back
+    var unclassified = window.points.filter(function(point){return point.attrs.fill == "#7F8C8D"});
+   for (var i=0;i<unclassified.length;i++){unclassified[i].toBack()};
 }
 
 // utility functions for trig
