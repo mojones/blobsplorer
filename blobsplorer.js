@@ -58,6 +58,23 @@ download_selected = function(e){
     //$('#download_ids').show();
 }
 
+hide_others = function(rank, name){
+   for (var i=0;i<window.points.length;i++){
+       var point = window.points[i];
+       console.log(point.taxonomic_data[rank]);
+       if (point.taxonomic_data[rank] !=name){
+              point.attr('fill-opacity', '0.1');
+       }
+   }
+}
+
+show_all = function(){
+   for (var i=0;i<window.points.length;i++){
+       var point = window.points[i];
+       point.attr('fill-opacity', point_opacity);
+   }
+}
+
 // function to switch between colourings
 change_colour = function(rank){
     console.log('switching to ' + rank);
@@ -74,6 +91,10 @@ change_colour = function(rank){
             .css('text-transform',  'none')
             .css('text-align',  'center')
             .text(name + ' (n=' + count + ')');
+        item.hover(
+            function(x,y){return function(){hide_others(x,y)};}(rank,name),
+            show_all
+            );
         $('#key').append(item);
         assigned_count = assigned_count + count;
     }
@@ -304,7 +325,10 @@ read_in_data = function(e){
             tax_table[list_of_ranks[h]] = {};
         }
 
-        var max_length=0, max_coverage=0, max_gc=0, min_gc=1;
+        window.max_length=0;
+        window.max_coverage=0;
+        window.max_gc=0;
+        window.min_gc=1;
         //process the file data once to calculate the max and the colours for taxonomic annotation
         for (var i=0; i<data.length; i++){
             
@@ -315,10 +339,10 @@ read_in_data = function(e){
             if (data[i] != '' && i % sample_every == 0){
                 var cols = data[i].split('\t');
                 var row_data = get_data(cols);
-                max_length = Math.max(max_length, row_data.length);
-                max_coverage = Math.max(max_coverage, row_data.coverage);
-                max_gc = Math.max(max_gc, row_data.gc);
-                min_gc = Math.min(min_gc, row_data.gc);
+                window.max_length = Math.max(window.max_length, row_data.length);
+                window.max_coverage = Math.max(window.max_coverage, row_data.coverage);
+                window.max_gc = Math.max(window.max_gc, row_data.gc);
+                window.min_gc = Math.min(window.min_gc, row_data.gc);
 
                 // if this row has taxonomic info, add it to the count
                 for (var h=0;h<list_of_ranks.length;h++){
@@ -363,6 +387,30 @@ read_in_data = function(e){
         }
 
 
+        // plot some axes
+        for (var i=0;i<Math.ceil(window.max_coverage);i++){
+            var tick_y_pos = paper_height - ( (i / window.max_coverage) * paper_height ); 
+            var tick = window.paper.rect(0, tick_y_pos+7, paper_width,1);
+            tick.attr("fill", "lightgrey");
+            tick.attr("stroke-width",0);
+            var label = window.paper.text(20, tick_y_pos, '10^' + i);
+            label.attr("font-size", 14);
+
+        }
+
+
+
+        for (var i=0;i<Math.ceil(window.max_gc - window.min_gc);i = i+0.1){
+            var tick_x_pos =  (((i-window.min_gc)/(window.max_gc - window.min_gc)) * paper_width);
+            var tick = window.paper.rect(tick_x_pos,0 , 1,paper.height);
+            tick.attr("fill", "lightgrey");
+            tick.attr("stroke-width",0);
+            var label = window.paper.text(tick_x_pos, 10, i.toFixed(1));
+            label.attr("font-size", 14);
+
+        }
+
+
         //now add the actual points
         for (var i=0; i<data.length; i++){
             if (i % 1000 == 0){
@@ -371,8 +419,8 @@ read_in_data = function(e){
             if (data[i] != '' && i % sample_every == 0){
                 var cols = data[i].split('\t');
                 var row_data = get_data(cols);
-                var point_x_pos =  (((row_data.gc-min_gc)/(max_gc - min_gc)) * paper_width);
-                var point_y_pos = paper_height - ( (row_data.coverage / max_coverage) * paper_height ); 
+                var point_x_pos =  (((row_data.gc-window.min_gc)/(window.max_gc - window.min_gc)) * paper_width);
+                var point_y_pos = paper_height - ( (row_data.coverage / window.max_coverage) * paper_height ); 
                 var point = window.paper.circle(point_x_pos, point_y_pos, point_radius);
                 point.attr("fill", "red");
                 point.attr("stroke-width",0);
