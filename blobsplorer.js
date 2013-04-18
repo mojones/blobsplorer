@@ -7,7 +7,7 @@ var paper_height = 1000;
 var paper_width = 1000;
 var list_of_ranks = ['superfamily', 'genus', 'order', 'kingdom', 'family', 'phylum'];
 
-var colours = ['#1ABC9C', '#2ECC71', '#3498DB', '#9B59B6', '#34495E', '#F39C12', '#D35400', '#C0392B'];
+var colours = ['#1ABC9C','#F39C12', '#D35400',  '#2ECC71', '#3498DB', '#9B59B6',  '#34495E', '#C0392B'];
 var point_radius = 2;
 var point_opacity = 1;
 
@@ -38,6 +38,9 @@ get_points_inside_ellipse = function(){
     return points;
 }
 
+
+
+
 show_selected = function(e){
     var selected_ids = get_points_inside_ellipse();
     for (var i=0;i<window.points.length; i++){
@@ -58,47 +61,75 @@ download_selected = function(e){
     //$('#download_ids').show();
 }
 
-hide_others = function(rank, name){
-   for (var i=0;i<window.points.length;i++){
-       var point = window.points[i];
-       console.log(point.taxonomic_data[rank]);
-       if (point.taxonomic_data[rank] !=name){
-              point.attr('fill-opacity', '0.1');
-       }
-   }
+download_svg = function(){
+    a = document.createElement('a');
+    a.download = 'blobplot.svg';
+    a.type = 'image/svg+xml';
+    a.href = 'data:image/svg+xml,' + window.paper.toSVG();
+    a.click();
+}
+hide_others = function(e){
+    // make all buttons transparent except the one we clicked
+    $('.key_button').css('opacity', 0.5);
+    $(e.target).css('opacity', 1);
+
+    // set this button to show all next time it's clicked
+    $(e.target).unbind('click');
+    $(e.target).click(show_all); 
+
+    var name = $(e.target).attr('taxon'); 
+    for (var i=0;i<window.points.length;i++){
+        var point = window.points[i];
+        point.attr('fill-opacity', 0.1);
+    }
+
+    var point_list = window.nodes_by_taxon[name];
+    for (var i=0;i<point_list.length;i++){
+        var point = point_list[i];
+        point.attr('fill-opacity', point_opacity);
+    }
 }
 
-show_all = function(){
-   for (var i=0;i<window.points.length;i++){
-       var point = window.points[i];
-       point.attr('fill-opacity', point_opacity);
-   }
+show_all = function(e){
+    $('.key_button').css('opacity', 1);
+    $(e.target).unbind('click');
+    $(e.target).click(hide_others);
+    for (var i=0;i<window.points.length;i++){
+        var point = window.points[i];
+        point.attr('fill-opacity', point_opacity);
+    }
 }
 
 // function to switch between colourings
 change_colour = function(rank){
     console.log('switching to ' + rank);
+    var start= new Date();
     $('#key').empty();
     var heading = $('<h2>').text('Colour key');
     $('#key').append(heading);
     var assigned_count = 0;
+    window.nodes_by_taxon = {};
+    window.nodes_by_taxon['undefined'] = new Array();
+    // add key for the 7 commonest taxa
     for (var i=0;i<Math.min(7, window.tax_colours[rank]['counts'].length); i++){
         var name = window.tax_colours[rank]['counts'][i][0];
+        window.nodes_by_taxon[name] = new Array();
         var count = window.tax_colours[rank]['counts'][i][1];
-        var item = $('<h5 class="btn">')
+        var item = $('<h5 class="btn key_button">')
             .css('background-color', window.tax_colours[rank]['counts'][i][2])
             .css('color',  'black')
             .css('text-transform',  'none')
             .css('text-align',  'center')
+            .attr('taxon', name)
             .text(name + ' (n=' + count + ')');
-        item.hover(
-            function(x,y){return function(){hide_others(x,y)};}(rank,name),
-            show_all
+        item.click(
+            hide_others
             );
         $('#key').append(item);
         assigned_count = assigned_count + count;
     }
-    var  other = $('<h5 class="btn">')
+    // add an "undefined" key
+    var  other = $('<h5 class="btn key_button">')
         .css('background-color',  '#7F8C8D')
         .css('text-transform',  'none')
         .css('color',  'black')
@@ -106,18 +137,25 @@ change_colour = function(rank){
         .text('unclassified/other' + '(n=' + (window.points.length - assigned_count) + ')');
     $('#key').append(other);
 
+    console.log('drawn key ' + (new Date() - start));
     for (var i=0;i<window.points.length;i++){
         var point = window.points[i];
         var new_colour = '#7F8C8D';
         if (typeof point.taxonomic_data[rank] != "undefined"){
-            new_colour = window.tax_colours[rank]['name2colour'][point.taxonomic_data[rank]];
+            var name = point.taxonomic_data[rank];
+            new_colour = window.tax_colours[rank]['name2colour'][name];
+            if (typeof window.nodes_by_taxon[name] != "undefined"){
+                window.nodes_by_taxon[name].push(point);
+            }
         }
+    //    else {
+    //        point.toBack();
+    //    }
         point.attr('fill', new_colour);
     }
 
-    // move all unclassified points to the back
-    var unclassified = window.points.filter(function(point){return point.attrs.fill == "#7F8C8D"});
-   for (var i=0;i<unclassified.length;i++){unclassified[i].toBack()};
+    console.log('created points' + (new Date() - start));
+    console.log('finished')
 }
 
 // utility functions for trig
@@ -288,7 +326,7 @@ read_in_data = function(e){
     var reader = new FileReader();
 
     window.paper = Raphael("canvas", paper_height, paper_width);
-    
+   var background = paper.rect(0,0,paper.width,paper.height).attr({"fill" : "white" }); 
     reader.onprogress = function(e){
         var percentLoaded = Math.round((e.loaded / e.total) * 100);
         console.log(percentLoaded + '%');
@@ -400,13 +438,15 @@ read_in_data = function(e){
 
 
 
-        for (var i=0;i<Math.ceil(window.max_gc - window.min_gc);i = i+0.1){
-            var tick_x_pos =  (((i-window.min_gc)/(window.max_gc - window.min_gc)) * paper_width);
-            var tick = window.paper.rect(tick_x_pos,0 , 1,paper.height);
-            tick.attr("fill", "lightgrey");
-            tick.attr("stroke-width",0);
-            var label = window.paper.text(tick_x_pos, 10, i.toFixed(1));
-            label.attr("font-size", 14);
+        for (var i=0;i<1;i = i+0.1){
+            if (i < window.max_gc && i > window.min_gc){
+                var tick_x_pos =  (((i-window.min_gc)/(window.max_gc - window.min_gc)) * paper_width);
+                var tick = window.paper.rect(tick_x_pos,0 , 1,paper.height);
+                tick.attr("fill", "lightgrey");
+                tick.attr("stroke-width",0);
+                var label = window.paper.text(tick_x_pos, 10, i.toFixed(1));
+                label.attr("font-size", 14);
+            }
 
         }
 
@@ -431,9 +471,15 @@ read_in_data = function(e){
                 window.points.push(point);
             }
         }
+
         var end = new Date();
         change_colour('phylum')
+        var unclassified = window.points.filter(function(point){return point.attrs.fill == "#7F8C8D"});
+       for (var i=0;i<unclassified.length;i++){unclassified[i].toBack()};        
+       background.toBack();
         console.log('rendered in ' + (end - start));
+
+        $('#download_svg').show();
     }
     reader.readAsText(file);
    
@@ -462,6 +508,7 @@ $(document).ready(function() {
 
             // clicking go grabs the points inside the ellipse
             $("#download_ids").click(download_selected);
+            $("#download_svg").click(download_svg);
 
             // clicking load loads the data
             $('#load').click(read_in_data);
@@ -480,6 +527,7 @@ $(document).ready(function() {
             $('#dk_container_colour_by  li').click(function(e){change_colour($(e.target).attr('data-dk-dropdown-value'))});
 
             $('#download_ids').hide();
+            $('#download_svg').hide();
             $('#help_button').click(function(){$('body').chardinJs('toggle')});
         });
 
