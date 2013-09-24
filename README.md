@@ -11,7 +11,7 @@ Deployment
 ========
 Blobsplorer is built as a single web page with associated resources (chiefly Javascript libraries). To use it, simply clone or download/extract the repository and open Blobplorer.html in a web browser. All necessary Javascript libraries are included in the respository, so you do not even need an internet connection to use it. 
 
-In order to accomplish file processing without any server-side component, Blobsplorer uses the HTML5 File API, so a recent browser is required. Chrome or Chromium is recommended because of its Javascript performance. 
+In order to accomplish file processing without any server-side component, Blobsplorer uses the HTML5 File API, so a recent browser is required. If you like, you can refer to [this page](http://caniuse.com/#feat=fileapi) to figure out whether your browser will work or not, but it's probably easier to just download the latest version of Chrome, as Javascript performance goes a long way towards determining how pleasant Blobsplorer is to use. 
 
 Usage
 ========
@@ -21,7 +21,7 @@ Once the plot has loaded, you can adjust the taxonomic level used for the shadin
 
 Clicking the “Download as SVG” button will generate a copy of the plot in SVG format, which you can open scalar vector drawing package for further processing.
 
-Once the data have been loaded and displayed, groups of contigs can be defined by drawing ellipses on the plot. To draw an ellipse, clicks once on the plot to define the center, then move the cursor to define the shape of the ellipse. Then click a second time, and move the cursor to define the rotation of the ellipse. Clicking for the third and final time on the plot completes the definition of the ellipse. Defining ellipses in this way is not a very intuitive interface, but it's the best one I could come up with using very limited knowledge of geometry :-)
+Once the data have been loaded and displayed, groups of contigs can be defined by drawing ellipses on the plot. To draw an ellipse, clicks once on the plot to define the center, then move the cursor to define the shape of the ellipse. Then click a second time, and move the cursor to define the rotation of the ellipse. Clicking for the third and final time on the plot completes the definition of the ellipse. Defining ellipses in this way is not a very intuitive interface, but it's the best one I could come up with using my very limited knowledge of geometry :-)
 
 Multiple ellipses can be drawn in this way to define a set of contigs. Clicking the “Highlight selected” button will confirm the selection visually by shading the selected contigs in red, while clicking the “download contig ids” button will generate a text file containing the identifiers of the selected contigs which can be downloaded for further processing - for example, to extract contigs with matching ids for re-assembly. 
 
