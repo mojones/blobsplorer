@@ -785,10 +785,6 @@ h6 {
   max-height: none;
   overflow: visible; }
 
-.dk_fouc select {
-  position: relative;
-  top: -99999em;
-  visibility: hidden; }
 
 textarea,
 input[type="text"],

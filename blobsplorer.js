@@ -336,18 +336,28 @@ read_in_data = function(e){
 
 
     function get_data(cols)  {
+        
 
         var result = {};
-        result.length = parseFloat(cols[2]);
-        result.coverage = log10(parseFloat(cols[3]));
-        result.gc = parseFloat(cols[4]);
-        result.id = cols[1];
         result.taxonomic_data={};
-        //now process taxonomic information
-        for (var j=5;j<cols.length;j++){
-            if (list_of_ranks.indexOf(cols[j]) > -1){
-                result.taxonomic_data[cols[j]] = cols[j+1];
+        for (var i=0;i<cols.length;i++){
+            var col = cols[i];
+            if (window.fields[i] == 'len'){
+                result.length = parseFloat(col);
+            } 
+            if (window.fields[i].slice(0,3) == 'cov'){
+                result.coverage = log10(parseFloat(col));
             }
+            if (window.fields[i] == 'gc'){
+                result.gc = parseFloat(col);
+            }
+            if (window.fields[i] == 'seqid'){
+                result.id = col;
+            }
+            if (window.fields[i].slice(0,9) == 'taxlevel_'){
+                result.taxonomic_data[window.fields[i].slice(9)] = col;
+            }
+
         }
         return result;
 
@@ -367,8 +377,23 @@ read_in_data = function(e){
         window.max_coverage=0;
         window.max_gc=0;
         window.min_gc=1;
+
+        //the first line of the file contains field headers
+        window.fields = data[0].split('\t');
+        for (var c=0;c<window.fields.length;c++){
+            if (window.fields[c].slice(0,9) == 'taxlevel_'){
+                var level = window.fields[c].slice(9)
+                $('#colour_by').append(
+                        $("<option></option>")
+                        .attr("value", level)
+                        .text(level)
+                        );
+
+            }
+        }
+
         //process the file data once to calculate the max and the colours for taxonomic annotation
-        for (var i=0; i<data.length; i++){
+        for (var i=1; i<data.length; i++){
             
             if (i % 1000 == 0){
                 console.log('processed' + i);
@@ -524,7 +549,7 @@ $(document).ready(function() {
 
             // selector to switch color - we need to do this instead of relying on change events because
             // bootstrap hides the actual select
-            $('#dk_container_colour_by  li').click(function(e){change_colour($(e.target).attr('data-dk-dropdown-value'))});
+            $('#colour_by').change(function(e){change_colour($(e.target).val())});
 
             $('#download_ids').hide();
             $('#download_svg').hide();
