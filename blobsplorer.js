@@ -5,7 +5,6 @@
 // TODO pick up these automatically from the div directly
 var paper_height = 1000;
 var paper_width = 1000;
-var list_of_ranks = ['superfamily', 'genus', 'order', 'kingdom', 'family', 'phylum'];
 
 var colours = ['#1ABC9C','#F39C12', '#D35400',  '#2ECC71', '#3498DB', '#9B59B6',  '#34495E', '#C0392B'];
 var point_radius = 2;
@@ -317,6 +316,34 @@ function setSize(e){
     $("#canvas").click(setRotation);
 }
 
+// takes an array of columns and turns it into a point object
+function get_data(cols)  {
+    
+
+    var result = {};
+    result.taxonomic_data={};
+    result.coverage_data={};
+    for (var i=0;i<cols.length;i++){
+        var col = cols[i];
+        var field_name = window.fields[i];
+        if (field_name == 'len'){
+            result.length = parseFloat(col);
+        } 
+        if (field_name.slice(0,4) == 'cov_'){
+            result.coverage_data[window.fields[i].slice(4)] = log10(col);
+        }
+        if (field_name == 'gc'){
+            result.gc = parseFloat(col);
+        }
+        if (field_name == 'seqid'){
+            result.id = col;
+        }
+        if (field_name.slice(0,9) == 'taxlevel_'){
+            result.taxonomic_data[window.fields[i].slice(9)] = col;
+        }
+    }
+    return result;
+}
 // big function to read data from the file and transform it into an array of points
 // also to calculate the colours for display taxonomic annotation
 read_in_data = function(e){
@@ -326,7 +353,7 @@ read_in_data = function(e){
     var reader = new FileReader();
 
     window.paper = Raphael("canvas", paper_height, paper_width);
-   var background = paper.rect(0,0,paper.width,paper.height).attr({"fill" : "white" }); 
+   window.background = paper.rect(0,0,paper.width,paper.height).attr({"fill" : "white" }); 
     reader.onprogress = function(e){
         var percentLoaded = Math.round((e.loaded / e.total) * 100);
         console.log(percentLoaded + '%');
@@ -335,33 +362,6 @@ read_in_data = function(e){
     var sample_every = parseFloat($('#sample_every').val());
 
 
-    function get_data(cols)  {
-        
-
-        var result = {};
-        result.taxonomic_data={};
-        for (var i=0;i<cols.length;i++){
-            var col = cols[i];
-            if (window.fields[i] == 'len'){
-                result.length = parseFloat(col);
-            } 
-            if (window.fields[i].slice(0,3) == 'cov'){
-                result.coverage = log10(parseFloat(col));
-            }
-            if (window.fields[i] == 'gc'){
-                result.gc = parseFloat(col);
-            }
-            if (window.fields[i] == 'seqid'){
-                result.id = col;
-            }
-            if (window.fields[i].slice(0,9) == 'taxlevel_'){
-                result.taxonomic_data[window.fields[i].slice(9)] = col;
-            }
-
-        }
-        return result;
-
-    }
 
     reader.onload = function(thefile){
         var start = new Date();
@@ -369,25 +369,40 @@ read_in_data = function(e){
         var data = thefile.target.result.split('\n');
         window.data = data;
         var tax_table = {};
-        for (var h=0;h<list_of_ranks.length;h++){
-            tax_table[list_of_ranks[h]] = {};
-        }
+        var list_of_ranks = [];
 
         window.max_length=0;
-        window.max_coverage=0;
+        window.max_coverage={};
         window.max_gc=0;
         window.min_gc=1;
 
         //the first line of the file contains field headers
         window.fields = data[0].split('\t');
         for (var c=0;c<window.fields.length;c++){
+            // add taxonomic levels
             if (window.fields[c].slice(0,9) == 'taxlevel_'){
-                var level = window.fields[c].slice(9)
+                var level = window.fields[c].slice(9);
+                list_of_ranks.push(level)
+                tax_table[level] = {};
                 $('#colour_by').append(
                         $("<option></option>")
                         .attr("value", level)
                         .text(level)
                         );
+                $('#colour_by').val(level);
+
+            }
+            // add coverages
+            if (window.fields[c].slice(0,4) == 'cov_'){
+                var library = window.fields[c].slice(4);
+                window.max_coverage[library] = 0;
+                $('#coverage_by').append(
+                        $("<option></option>")
+                        .attr("value", library)
+                        .text(library)
+                        );
+                
+                $('#coverage_by').val(level);
 
             }
         }
@@ -402,8 +417,11 @@ read_in_data = function(e){
             if (data[i] != '' && i % sample_every == 0){
                 var cols = data[i].split('\t');
                 var row_data = get_data(cols);
+                for (library in row_data.coverage_data){
+                    library_coverage = row_data.coverage_data[library];
+                    window.max_coverage[library] = Math.max(window.max_coverage[library], library_coverage);
+                }
                 window.max_length = Math.max(window.max_length, row_data.length);
-                window.max_coverage = Math.max(window.max_coverage, row_data.coverage);
                 window.max_gc = Math.max(window.max_gc, row_data.gc);
                 window.min_gc = Math.min(window.min_gc, row_data.gc);
 
@@ -449,10 +467,25 @@ read_in_data = function(e){
             window.tax_colours[rank_name]['name2colour'] = name2colour;
         }
 
+        drawChart();
 
+        $('#download_svg').show();
+    }
+    reader.readAsText(file);
+   
+
+}
+
+drawChart = function(){
+       window.paper.clear();
+        library = $('#coverage_by').val();
+        var sample_every = parseFloat($('#sample_every').val());
+        console.log('drawing points for ' + library + " every " + sample_every);
+        library_max_coverage=window.max_coverage[library];
+        console.log('max coverage is ' + library_max_coverage);
         // plot some axes
-        for (var i=0;i<Math.ceil(window.max_coverage);i++){
-            var tick_y_pos = paper_height - ( (i / window.max_coverage) * paper_height ); 
+        for (var i=0;i<Math.ceil(library_max_coverage);i++){
+            var tick_y_pos = paper_height - ( (i / library_max_coverage) * paper_height ); 
             var tick = window.paper.rect(0, tick_y_pos+7, paper_width,1);
             tick.attr("fill", "lightgrey");
             tick.attr("stroke-width",0);
@@ -477,38 +510,32 @@ read_in_data = function(e){
 
 
         //now add the actual points
-        for (var i=0; i<data.length; i++){
+        for (var i=0; i<window.data.length; i++){
             if (i % 1000 == 0){
                 console.log('created' + i);
             }
-            if (data[i] != '' && i % sample_every == 0){
-                var cols = data[i].split('\t');
+         
+            if (window.data[i] != '' && i % sample_every == 0){
+                var cols = window.data[i].split('\t');
                 var row_data = get_data(cols);
                 var point_x_pos =  (((row_data.gc-window.min_gc)/(window.max_gc - window.min_gc)) * paper_width);
-                var point_y_pos = paper_height - ( (row_data.coverage / window.max_coverage) * paper_height ); 
+                var point_y_pos = paper_height - ( (row_data.coverage_data[library] / library_max_coverage) * paper_height ); 
                 var point = window.paper.circle(point_x_pos, point_y_pos, point_radius);
                 point.attr("fill", "red");
                 point.attr("stroke-width",0);
                 point.attr("fill-opacity",point_opacity);
                 point.taxonomic_data = row_data.taxonomic_data;
                 point.contig_id = row_data.id;
-
                 window.points.push(point);
             }
         }
 
         var end = new Date();
-        change_colour('phylum')
+        change_colour($('#colour_by').val())
         var unclassified = window.points.filter(function(point){return point.attrs.fill == "#7F8C8D"});
        for (var i=0;i<unclassified.length;i++){unclassified[i].toBack()};        
-       background.toBack();
+       window.background.toBack();
         console.log('rendered in ' + (end - start));
-
-        $('#download_svg').show();
-    }
-    reader.readAsText(file);
-   
-
 }
 
 enableLoadButton = function(){
@@ -547,9 +574,9 @@ $(document).ready(function() {
             // show the load button when we change filename
             $('#myfile').change(function(){enableLoadButton();$('#top_tooltip').hide();})
 
-            // selector to switch color - we need to do this instead of relying on change events because
-            // bootstrap hides the actual select
             $('#colour_by').change(function(e){change_colour($(e.target).val())});
+
+            $('#coverage_by').change(function(e){drawChart()});
 
             $('#download_ids').hide();
             $('#download_svg').hide();
