@@ -3,7 +3,7 @@ Blobsplorer
 
 Blobsplorer is a tool for interactive visualization of assembled DNA sequence data ("contigs") derived from (often unintentionally) mixed-species pools. It allows the simultaneous display of GC content, coverage, and taxonomic annotation for collections of contigs with a view to separating out those belonging to different taxa.
 
-Blobsplorer is unlikely to be of use on its own as it requires contig data to be supplied in a format that involves considerable preprocessing (see below for a description). The easiest way to use Blobsplorer is as part of a workflow as described in [REFERENCE TO BE ADDED HERE].
+Blobsplorer is unlikely to be of use on its own as it requires contig data to be supplied in a format that involves considerable preprocessing (see below for a description). The easiest way to use Blobsplorer is as part of a workflow using scripts from [here](https://github.com/sujaikumar/blobology).
 
 Bugs, comments and questions to martin.jones@ed.ac.uk
 
@@ -17,7 +17,9 @@ Usage
 ========
 To use Blobsplorer, open the web page in your browser then select an input file. The contig data will be loaded, and the plot drawn, when you click the "Load contigs" button, but before you do it's a good idea to set the sampling level from the dropdown menu. For a first pass, set the sampling level so that the number of points displayed is less than 10,000 (e.g. if you have a file with data for 50,000 contigs, select "every ten"). Depending on the speed of your computer, you may have to wait for a while for the plot to be displayed. Hardware acceleration may improve performance, or it may not - preliminary testing has not revealed any strong improvement, but your mileage may vary. If you want to monitor the performance of the tool, use the Javascript console to view logging events. 
 
-Once the plot has loaded, you can adjust the taxonomic level used for the shading of the points by changing the selection in the "colour by" drop-down box. The names of the taxonomic levels are read from the field headers on the first line of the input file, so if something seems wrong here, double-check the format of the input file before you do anything else. 
+Once the plot has loaded, you can adjust the taxonomic level used for the shading of the points by changing the selection in the "colour by" drop-down box. The names of the taxonomic levels are read from the field headers on the first line of the input file, so if something seems wrong here, double-check the format of the input file before you do anything else. You can also select the library for which you want to view coverage data, if your input file contains more than one. 
+
+Clicking on a taxon name in the key on the left-hand side of the screen will highlight contigs annotated as belonging to that taxon (actually it will dim the others, but it amounts to the same thing). This can make it easier to see e.g. contigs belonging to your target organism, if you have a lot of unannotated ones. 
 
 Clicking the “Download as SVG” button will generate a copy of the plot in SVG format, which you can open scalar vector drawing package for further processing.
 
@@ -41,7 +43,7 @@ seqid	len	gc	cov_pa61-scaffolds.fa.ERR138445.bowtie2.sorted.bam	cov_pa61-scaffol
 
 ````
 
-Take a look at the sample.txt file in the root of the repository for a much bigger example. 
+Take a look at the sample_big.txt and sample_small.txt files in the root of the repository for a real-life examples. 
 
 
 
