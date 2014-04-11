@@ -3,7 +3,7 @@ Blobsplorer
 
 Blobsplorer is a tool for interactive visualization of assembled DNA sequence data ("contigs") derived from (often unintentionally) mixed-species pools. It allows the simultaneous display of GC content, coverage, and taxonomic annotation for collections of contigs with a view to separating out those belonging to different taxa.
 
-Blobsplorer is unlikely to be of use on its own as it requires contig data to be supplied in a format that involves considerable preprocessing (see below for a description). The easiest way to use Blobsplorer is as part of a workflow using scripts from [here](https://github.com/sujaikumar/blobology).
+Blobsplorer is unlikely to be of use on its own as it requires contig data to be supplied in a format that involves considerable preprocessing (see below for a description). The easiest way to use Blobsplorer is as part of a workflow using scripts from [here](https://github.com/blaxterlab/blobology).
 
 Bugs, comments and questions to martin.jones@ed.ac.uk
 
